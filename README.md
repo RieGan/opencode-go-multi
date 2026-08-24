@@ -10,10 +10,14 @@ This release is tested and supported only with OpenCode **1.18.19** and the V1
 plugin API from `@opencode-ai/plugin` **1.18.19**. The package is built against
 `@opencode-ai/plugin 1.18.19`.
 
-The supported V1 plugin API is the `chat.headers` hook exposed by that release.
+The server target uses the supported V1 plugin API. The optional TUI target uses
+the OpenCode V2 TUI plugin API and is loaded separately from the server target.
 
-> **Unsupported:** OpenCode V2 is unsupported. This package targets only the V1
-> plugin API in OpenCode 1.18.19 and `@opencode-ai/plugin` 1.18.19.
+The server and TUI targets are exclusive: do not register the package root as a
+TUI plugin or the `./tui` target as a server plugin.
+
+The OpenCode V2 server/plugin API remains unsupported; only the separate `./tui`
+target uses the V2 TUI API required for native modal rendering.
 
 The usage check uses `GET /zen/go/v1/usage`. This route is source-backed but
 undocumented in the public Go endpoint documentation, so an upstream route or
@@ -114,6 +118,40 @@ OpenCode evaluates the V1 `plugin` array in order. Later plugins can overwrite
 headers. Put this plugin last when other plugins also modify request headers. The
 plugin only changes `Authorization` for requests whose model provider is exactly
 `opencode-go`; unrelated providers and other headers are left alone.
+
+## Commands
+
+The plugin registers two V1 commands through `config.command`:
+
+- `/ogm-usage` probes every configured key and prints a readable section for
+  each safe `key[1]`, `key[2]`, ... label. Every rolling, weekly, and monthly
+  window shows both remaining and used percentage, status, and reset timestamp.
+  Credentials and upstream response bodies are never included.
+- `/ogm-switch` advances the manual priority cursor with wraparound. The next
+  request starts at that key, then continues through the remaining keys with the
+  normal automatic quota and outage failover rules.
+
+Existing command definitions are preserved. The commands are handled by the V1
+`command.execute.before` hook and publish a safe encoded event. To display the
+result in a dismissable native modal, register the pinned V1 server target in
+`opencode.json` and the optional V2 TUI target in `tui.json`. Both use the same
+package directory; OpenCode resolves the `./tui` export for the TUI target:
+
+`opencode.json` (V1 server target):
+
+```json
+{"plugin": ["<ABSOLUTE_PLUGIN_PATH>"]}
+```
+
+`tui.json` (optional V2 modal target):
+
+```json
+{"plugin": ["<ABSOLUTE_PLUGIN_PATH>"]}
+```
+
+Without the TUI target, the server command still probes and publishes its safe
+event, but no modal is rendered. The TUI target rejects malformed or oversized
+payloads and only renders redacted command output.
 
 ## Selection, cache, and quotas
 

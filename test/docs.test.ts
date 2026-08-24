@@ -19,7 +19,7 @@ describe("README documentation contract", () => {
       "OpenCode 1.18.19",
       "@opencode-ai/plugin",
       "V1 plugin API",
-      "OpenCode V2 is unsupported",
+      "OpenCode V2 TUI plugin API",
       "OPENCODE_GO_API_KEYS",
       "options.keys",
       "replaces environment keys",
@@ -42,12 +42,12 @@ describe("README documentation contract", () => {
       (value): value is { plugin: unknown[] } =>
         typeof value === "object" && value !== null && Array.isArray(Reflect.get(value, "plugin")),
     )
-    expect(examples).toHaveLength(2)
 
-    const environmentEntry = examples[0]?.plugin[0]
+    const environmentEntry = examples.find((value) => typeof value.plugin[0] === "string")
+      ?.plugin[0]
     expect(typeof environmentEntry).toBe("string")
 
-    const tupleEntry = examples[1]?.plugin[0]
+    const tupleEntry = examples.find((value) => Array.isArray(value.plugin[0]))?.plugin[0]
     expect(Array.isArray(tupleEntry)).toBe(true)
     expect(tupleEntry).toHaveLength(2)
     expect(typeof tupleEntry?.[0]).toBe("string")

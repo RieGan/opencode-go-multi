@@ -16,6 +16,7 @@ export interface KeySelectionInput {
 export interface KeySelector {
   readonly select: (input: KeySelectionInput) => Promise<string | undefined>
   readonly unavailable: (input: KeySelectionInput) => readonly KeyUnavailableInput[]
+  readonly switchPriority: () => number
   readonly reset: () => void
 }
 
@@ -61,13 +62,17 @@ export const createKeySelector = (options: KeySelectorOptions): KeySelector => {
   const clock = options.clock ?? { now: () => Date.now() }
   const records = new Map<string, RecordState>()
   const flights = new Map<string, Promise<string | undefined>>()
+  let priorityIndex = 0
 
   const selectSequential = async (
     input: KeySelectionInput,
     endpoint: string,
   ): Promise<string | undefined> => {
     const now = clock.now()
-    for (const key of options.keys) {
+    for (let offset = 0; offset < options.keys.length; offset += 1) {
+      const keyIndex = (priorityIndex + offset) % options.keys.length
+      const key = options.keys[keyIndex]
+      if (key === undefined) continue
       const id = `${endpoint}\u0000${key}`
       const record = records.get(id) ?? { key, endpoint }
       records.set(id, record)
@@ -136,6 +141,11 @@ export const createKeySelector = (options: KeySelectorOptions): KeySelector => {
     records.clear()
     flights.clear()
   }
+  const switchPriority = (): number => {
+    priorityIndex = (priorityIndex + 1) % options.keys.length
+    reset()
+    return priorityIndex
+  }
   const unavailable = (input: KeySelectionInput): readonly KeyUnavailableInput[] => {
     const endpoint = endpointFor(input)
     return options.keys.map((key): KeyUnavailableInput => {
@@ -164,7 +174,7 @@ export const createKeySelector = (options: KeySelectorOptions): KeySelector => {
       }
     })
   }
-  return { select, unavailable, reset }
+  return { select, unavailable, switchPriority, reset }
 }
 
 export const createSelector = createKeySelector
