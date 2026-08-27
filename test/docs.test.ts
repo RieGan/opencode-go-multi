@@ -4,6 +4,7 @@ import { join } from "node:path"
 import { parseConfig } from "../src/config.ts"
 
 const readme = readFileSync(join(import.meta.dir, "..", "README.md"), "utf8")
+const packageManifest = readFileSync(join(import.meta.dir, "..", "package.json"), "utf8")
 
 const jsonExamples = (): unknown[] => {
   const examples: unknown[] = []
@@ -14,9 +15,14 @@ const jsonExamples = (): unknown[] => {
 }
 
 describe("README documentation contract", () => {
+  test("publishes the OpenCode engine version used by its plugin API dependency", () => {
+    expect(packageManifest).toContain('"opencode": "1.18.23"')
+    expect(packageManifest).toContain('"@opencode-ai/plugin": "1.18.23"')
+  })
+
   test("documents the pinned V1 installation and safety contract", () => {
     for (const phrase of [
-      "OpenCode 1.18.19",
+      "OpenCode 1.18.23",
       "@opencode-ai/plugin",
       "V1 plugin API",
       "OpenCode V2 TUI plugin API",

@@ -205,7 +205,7 @@ try {
   console.log(
     JSON.stringify({
       scenario,
-      opencodeVersion: "1.18.19",
+      opencodeVersion: "1.18.23",
       exitCode: child.code,
       stdout: child.stdout.replaceAll(keys.key1, "[REDACTED]").replaceAll(keys.key2, "[REDACTED]"),
       stderr: child.stderr.replaceAll(keys.key1, "[REDACTED]").replaceAll(keys.key2, "[REDACTED]"),

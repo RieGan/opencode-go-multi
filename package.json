@@ -1,6 +1,6 @@
 {
   "name": "opencode-go-multi",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": {
     "email": "riegan@riegan.dev",
     "name": "RieGan",
@@ -20,7 +20,7 @@
     "LICENSE"
   ],
   "engines": {
-    "opencode": "1.18.19"
+    "opencode": "1.18.23"
   },
   "scripts": {
     "check": "biome check . && tsc --noEmit",

@@ -6,9 +6,9 @@ it does not create a replacement provider or change OpenCode's model catalog.
 
 ## Compatibility
 
-This release is tested and supported only with OpenCode **1.18.19** and the V1
-plugin API from `@opencode-ai/plugin` **1.18.19**. The package is built against
-`@opencode-ai/plugin 1.18.19`.
+This release is tested and supported only with OpenCode **1.18.23** and the V1
+plugin API from `@opencode-ai/plugin` **1.18.23**. The package is built against
+`@opencode-ai/plugin 1.18.23`.
 
 The server target uses the supported V1 plugin API. The optional TUI target uses
 the OpenCode V2 TUI plugin API and is loaded separately from the server target.
@@ -26,8 +26,31 @@ response before selecting a key.
 
 ## Installation
 
-The examples below use a local directory or a local npm tarball. They do not
-require a package registry.
+### npm registry (recommended)
+
+OpenCode installs registry plugins into its own cache. You do not need to run
+`npm install` inside `~/.cache/opencode` or point the config at that cache
+directory. Install the published package and let OpenCode manage the cached copy:
+
+```sh
+opencode plugin opencode-go-multi@0.1.1 --global
+```
+
+You can also add the registry spec manually. Use the exact version when you want
+to force OpenCode to fetch a new release; `opencode-go-multi@latest` follows the
+latest published release after the cache is refreshed.
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-go-multi@0.1.1"]
+}
+```
+
+### Local development
+
+The local directory and tarball workflows below are useful for development and
+do not require a package registry.
 
 ### Local directory
 
@@ -41,7 +64,8 @@ bun run build
 Use the absolute path to that checkout as the string plugin entry in the
 environment-only configuration below. OpenCode loads the package's built entry
 point from the directory. Replace `<ABSOLUTE_PLUGIN_PATH>` with the directory
-containing this package.
+containing this package. For this workflow, use `<ABSOLUTE_PLUGIN_PATH>` instead
+of the registry spec in the configuration examples below.
 
 ### npm tarball
 
@@ -63,8 +87,8 @@ this workflow; creating a tarball does not imply registry publication.
 ## Configuration (V1)
 
 There are two supported V1 configuration tuples. The plugin entry is a string for
-environment-only configuration, or a two-item tuple `[path, options]` when using
-literal options.
+environment-only configuration, or a two-item tuple `[plugin spec, options]` when
+using literal options.
 
 ### Environment-only (recommended)
 
@@ -75,12 +99,12 @@ environment variable to the OpenCode process:
 export OPENCODE_GO_API_KEYS='<GO_API_KEY_1>,<GO_API_KEY_2>'
 ```
 
-Then use a string plugin entry:
+Then use the registry package entry:
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["<ABSOLUTE_PLUGIN_PATH>"]
+  "plugin": ["opencode-go-multi@0.1.1"]
 }
 ```
 
@@ -93,7 +117,7 @@ The V1 tuple carries a non-empty string array as its second item:
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
     [
-      "<ABSOLUTE_PLUGIN_PATH>",
+      "opencode-go-multi@0.1.1",
       {"keys": ["<GO_API_KEY_1>", "<GO_API_KEY_2>"]}
     ]
   ]
@@ -135,18 +159,19 @@ Existing command definitions are preserved. The commands are handled by the V1
 `command.execute.before` hook and publish a safe encoded event. To display the
 result in a dismissable native modal, register the pinned V1 server target in
 `opencode.json` and the optional V2 TUI target in `tui.json`. Both use the same
-package directory; OpenCode resolves the `./tui` export for the TUI target:
+registry spec or package directory; OpenCode resolves the `./tui` export for the
+TUI target:
 
 `opencode.json` (V1 server target):
 
 ```json
-{"plugin": ["<ABSOLUTE_PLUGIN_PATH>"]}
+{"plugin": ["opencode-go-multi@0.1.1"]}
 ```
 
 `tui.json` (optional V2 modal target):
 
 ```json
-{"plugin": ["<ABSOLUTE_PLUGIN_PATH>"]}
+{"plugin": ["opencode-go-multi@0.1.1"]}
 ```
 
 Without the TUI target, the server command still probes and publishes its safe
@@ -213,7 +238,7 @@ expose upstream response bodies.
 Use an absolute local plugin path, confirm `bun run build` completed, and check
 that the package directory contains `dist/index.js` and `package.json`. Verify
 that the plugin entry is in the V1 `plugin` array and is last if another plugin
-also edits headers. This package is pinned to OpenCode 1.18.19 V1; other runtime
+also edits headers. This package is pinned to OpenCode 1.18.23 V1; other runtime
 versions are outside the supported compatibility contract.
 
 ### Configuration is rejected
