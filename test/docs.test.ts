@@ -15,14 +15,15 @@ const jsonExamples = (): unknown[] => {
 }
 
 describe("README documentation contract", () => {
-  test("publishes the OpenCode engine version used by its plugin API dependency", () => {
-    expect(packageManifest).toContain('"opencode": "1.18.23"')
-    expect(packageManifest).toContain('"@opencode-ai/plugin": "1.18.23"')
+  test("publishes the supported OpenCode 1.x engine range", () => {
+    expect(packageManifest).toContain('"opencode": ">=1.18.23 <2.0.0"')
+    expect(packageManifest).toContain('"@opencode-ai/plugin": ">=1.18.23 <2.0.0"')
+    expect(packageManifest).toContain('"homepage": "https://github.com/RieGan/opencode-go-multi"')
   })
 
-  test("documents the pinned V1 installation and safety contract", () => {
+  test("documents the supported V1 installation and safety contract", () => {
     for (const phrase of [
-      "OpenCode 1.18.23",
+      "OpenCode **>=1.18.23 <2.0.0**",
       "@opencode-ai/plugin",
       "V1 plugin API",
       "OpenCode V2 TUI plugin API",
@@ -51,12 +52,12 @@ describe("README documentation contract", () => {
 
     const environmentEntry = examples.find((value) => typeof value.plugin[0] === "string")
       ?.plugin[0]
-    expect(typeof environmentEntry).toBe("string")
+    expect(environmentEntry).toBe("opencode-go-multi@latest")
 
     const tupleEntry = examples.find((value) => Array.isArray(value.plugin[0]))?.plugin[0]
     expect(Array.isArray(tupleEntry)).toBe(true)
     expect(tupleEntry).toHaveLength(2)
-    expect(typeof tupleEntry?.[0]).toBe("string")
+    expect(tupleEntry?.[0]).toBe("opencode-go-multi@latest")
     expect(tupleEntry?.[1]).toEqual({ keys: ["<GO_API_KEY_1>", "<GO_API_KEY_2>"] })
 
     expect(

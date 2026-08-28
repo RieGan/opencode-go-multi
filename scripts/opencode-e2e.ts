@@ -64,6 +64,9 @@ const run = async (
 }
 
 try {
+  const version = await run(["opencode", "--version"], root, {})
+  if (version.code !== 0) throw new Error(`version check failed: ${version.stderr}`)
+  const opencodeVersion = version.stdout.trim()
   const packed = await run(["npm", "pack", "--json"], root, {})
   if (packed.code !== 0) throw new Error(`pack failed: ${packed.stderr}`)
   const metadata = JSON.parse(packed.stdout) as readonly [{ readonly filename: string }]
@@ -184,10 +187,13 @@ try {
     try {
       await hooks["chat.headers"]?.(directInput, { headers: {} })
     } catch (error) {
-      const record = error as { readonly code?: unknown; readonly toJSON?: () => unknown }
-      observedAggregateCode = typeof record.code === "string" ? record.code : undefined
+      if (!(error instanceof Error)) throw error
+      const code = "code" in error && typeof error.code === "string" ? error.code : undefined
+      observedAggregateCode = code
       serializedAggregate = JSON.stringify(
-        typeof record.toJSON === "function" ? record.toJSON() : { code: observedAggregateCode },
+        "toJSON" in error && typeof error.toJSON === "function"
+          ? error.toJSON()
+          : { code: observedAggregateCode },
       )
     }
     if (
@@ -205,7 +211,7 @@ try {
   console.log(
     JSON.stringify({
       scenario,
-      opencodeVersion: "1.18.23",
+      opencodeVersion,
       exitCode: child.code,
       stdout: child.stdout.replaceAll(keys.key1, "[REDACTED]").replaceAll(keys.key2, "[REDACTED]"),
       stderr: child.stderr.replaceAll(keys.key1, "[REDACTED]").replaceAll(keys.key2, "[REDACTED]"),

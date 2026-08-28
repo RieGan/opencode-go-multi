@@ -6,9 +6,9 @@ it does not create a replacement provider or change OpenCode's model catalog.
 
 ## Compatibility
 
-This release is tested and supported only with OpenCode **1.18.23** and the V1
-plugin API from `@opencode-ai/plugin` **1.18.23**. The package is built against
-`@opencode-ai/plugin 1.18.23`.
+This release supports OpenCode **>=1.18.23 <2.0.0** and its V1 plugin API. It
+depends on `@opencode-ai/plugin >=1.18.23 <2.0.0` and uses only V1 APIs available
+from the 1.18.23 baseline.
 
 The server target uses the supported V1 plugin API. The optional TUI target uses
 the OpenCode V2 TUI plugin API and is loaded separately from the server target.
@@ -33,17 +33,16 @@ OpenCode installs registry plugins into its own cache. You do not need to run
 directory. Install the published package and let OpenCode manage the cached copy:
 
 ```sh
-opencode plugin opencode-go-multi@0.1.1 --global
+opencode plugin opencode-go-multi@latest --global
 ```
 
-You can also add the registry spec manually. Use the exact version when you want
-to force OpenCode to fetch a new release; `opencode-go-multi@latest` follows the
-latest published release after the cache is refreshed.
+You can also add the registry spec manually. `opencode-go-multi@latest` follows
+the latest published release after the cache is refreshed.
 
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-go-multi@0.1.1"]
+  "plugin": ["opencode-go-multi@latest"]
 }
 ```
 
@@ -104,7 +103,7 @@ Then use the registry package entry:
 ```json
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-go-multi@0.1.1"]
+  "plugin": ["opencode-go-multi@latest"]
 }
 ```
 
@@ -117,7 +116,7 @@ The V1 tuple carries a non-empty string array as its second item:
   "$schema": "https://opencode.ai/config.json",
   "plugin": [
     [
-      "opencode-go-multi@0.1.1",
+      "opencode-go-multi@latest",
       {"keys": ["<GO_API_KEY_1>", "<GO_API_KEY_2>"]}
     ]
   ]
@@ -157,7 +156,7 @@ The plugin registers two V1 commands through `config.command`:
 
 Existing command definitions are preserved. The commands are handled by the V1
 `command.execute.before` hook and publish a safe encoded event. To display the
-result in a dismissable native modal, register the pinned V1 server target in
+result in a dismissable native modal, register the supported V1 server target in
 `opencode.json` and the optional V2 TUI target in `tui.json`. Both use the same
 registry spec or package directory; OpenCode resolves the `./tui` export for the
 TUI target:
@@ -165,13 +164,13 @@ TUI target:
 `opencode.json` (V1 server target):
 
 ```json
-{"plugin": ["opencode-go-multi@0.1.1"]}
+{"plugin": ["opencode-go-multi@latest"]}
 ```
 
 `tui.json` (optional V2 modal target):
 
 ```json
-{"plugin": ["opencode-go-multi@0.1.1"]}
+{"plugin": ["opencode-go-multi@latest"]}
 ```
 
 Without the TUI target, the server command still probes and publishes its safe
@@ -238,8 +237,8 @@ expose upstream response bodies.
 Use an absolute local plugin path, confirm `bun run build` completed, and check
 that the package directory contains `dist/index.js` and `package.json`. Verify
 that the plugin entry is in the V1 `plugin` array and is last if another plugin
-also edits headers. This package is pinned to OpenCode 1.18.23 V1; other runtime
-versions are outside the supported compatibility contract.
+also edits headers. This package supports OpenCode >=1.18.23 <2.0.0 through the
+V1 plugin API; OpenCode 2.x is outside the supported compatibility contract.
 
 ### Configuration is rejected
 

@@ -1,11 +1,12 @@
 {
   "name": "opencode-go-multi",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": {
     "email": "riegan@riegan.dev",
     "name": "RieGan",
     "url": "https://github.com/RieGan"
   },
+  "homepage": "https://github.com/RieGan/opencode-go-multi",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,7 +21,7 @@
     "LICENSE"
   ],
   "engines": {
-    "opencode": "1.18.23"
+    "opencode": ">=1.18.23 <2.0.0"
   },
   "scripts": {
     "check": "biome check . && tsc --noEmit",
@@ -29,7 +30,7 @@
     "prepack": "bun run build"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "1.18.23",
+    "@opencode-ai/plugin": ">=1.18.23 <2.0.0",
     "zod": "4.4.3"
   },
   "devDependencies": {
